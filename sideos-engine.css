@@ -1,0 +1,43 @@
+/* SideOS look — flat full-screen (NO liquid glass here, per spec) */
+.sos-root{position:fixed;inset:0;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,sans-serif;z-index:50;overflow:hidden}
+.sos-wall{position:absolute;inset:0}
+.sos-status{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:12px 16px;font-weight:700;font-size:15px;text-shadow:0 1px 8px rgba(0,0,0,.6);z-index:5}
+.sos-time{cursor:pointer;padding:2px 10px;border-radius:999px;background:rgba(0,0,0,.25)}
+.sos-grid{position:absolute;inset:56px 0 90px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:18px;align-content:start}
+.sos-icon{text-align:center;font-size:12px;position:relative;touch-action:none}
+.sos-e{width:58px;height:58px;margin:0 auto 4px;border-radius:15px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:28px}
+.sos-sq{position:absolute;left:50%;top:0;width:66px;height:66px;transform:translateX(-50%);border:2.5px solid #38bdf8;border-radius:12px;background:rgba(56,189,248,.12);cursor:grab}
+.sos-dock{position:absolute;left:12px;right:12px;bottom:52px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:10px;text-align:center;font-size:13px}
+.sos-exit{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:#1f1f26;color:#fff;border:1px solid #555;border-radius:999px;padding:8px 16px}
+.sos-app{position:absolute;inset:0;background:#101016;display:flex;flex-direction:column;z-index:6}
+.sos-appbar{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#000;border-bottom:1px solid #333}
+.sos-appbar button{background:none;border:none;color:#a78bfa;font-size:20px}
+.sos-body{padding:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+.sos-body .mut2{color:#b9b3d6;font-size:13px}
+.sbtn{background:#2a2a33;color:#fff;border:1px solid #555;border-radius:10px;padding:8px 12px;margin:4px 4px 4px 0;font-size:14px}
+.sbtn.pri{background:#6d28d9;border-color:#a855f7}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#1a1a22;border:1px solid #333;border-radius:12px;padding:10px;margin:8px 0}
+.row.site{cursor:pointer}
+.card{background:#1a1a22;border:1px solid #333;border-radius:12px;padding:10px;margin:8px 0}
+.addr{background:#000;border:1px solid #333;border-radius:10px;padding:8px;color:#8ab4ff;margin-bottom:8px;font-size:13px}
+.log{background:#000;border:1px solid #444;border-radius:10px;padding:10px;font-size:12px;white-space:pre-wrap;max-height:220px;overflow:auto}
+.brow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.sos-respring{position:absolute;inset:0;background:#000;z-index:50;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center}
+.sos-respring .wig{font-size:90px;font-weight:900;animation:wig 1s ease-in-out infinite}
+@keyframes wig{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.08)}}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid #333;border-top-color:#a855f7;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.sos-notif{position:absolute;top:44px;left:12px;right:12px;background:rgba(20,20,28,.95);border:1px solid #555;border-radius:14px;padding:10px;z-index:60;opacity:0;transform:translateY(-8px);transition:.3s}
+.sos-notif.show{opacity:1;transform:none}
+.sos-body input,.sos-body select,.sos-body textarea{background:#000;color:#fff;border:1px solid #444;border-radius:10px;padding:9px;width:100%;margin:2px 0}
+.sos-widgets{position:absolute;top:52px;left:12px;right:12px;display:flex;gap:8px;z-index:4}
+.sw{flex:1;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:8px;text-align:center;font-size:13px;font-weight:700}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ph{border-radius:12px;min-height:110px;padding:8px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(255,255,255,.3);font-size:12px;font-weight:700}
+.ph .brow{margin:0}.ph .sbtn{padding:4px 8px;font-size:12px}
+.viewfinder{height:220px;border-radius:14px;background:radial-gradient(circle at 50% 40%,#3b3b48,#101016 70%);border:1px solid #444;display:flex;align-items:flex-end;justify-content:center;padding:10px;margin-bottom:8px}
+.vig{color:#9a94b8;font-size:12px}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.cgrid.week{grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px}
+.day{background:#1a1a22;border:1px solid #333;border-radius:8px;padding:8px 0}
+.day.t{background:#5b21b6;border-color:#a855f7;font-weight:800}

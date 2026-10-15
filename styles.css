@@ -1,0 +1,71 @@
+/* SideRoot liquid-glass theme (website + SideGrab). SideBoot intentionally stays flat. */
+:root{
+  --bg0:#07070d; --bg1:#120a24; --purple:#7c3aed; --violet:#a855f7;
+  --blue:#38bdf8; --txt:#f4f2ff; --mut:#b9b3d6;
+  --glass-bd:rgba(255,255,255,.22);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Segoe UI,Roboto,sans-serif;
+  color:var(--txt);
+  background:
+    radial-gradient(1100px 600px at 15% -5%, #3b1470 0%, transparent 60%),
+    radial-gradient(900px 600px at 90% 10%, #1d2f7a 0%, transparent 55%),
+    radial-gradient(700px 500px at 50% 110%, #2a0f4d 0%, transparent 60%),
+    linear-gradient(180deg,var(--bg0),var(--bg1));
+  min-height:100vh;
+}
+.bg-orbs{position:fixed;inset:0;z-index:-2;overflow:hidden}
+.bg-orbs i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+.bg-orbs i:nth-child(1){width:420px;height:420px;left:-120px;top:-120px;background:#6d28d9}
+.bg-orbs i:nth-child(2){width:360px;height:360px;right:-100px;top:8%;background:#2563eb}
+.bg-orbs i:nth-child(3){width:520px;height:520px;left:30%;bottom:-220px;background:#4c1d95}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 18px 90px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.3px}
+.brand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#000,#5b21b6 60%,#a855f7);display:grid;place-items:center;font-weight:900}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{color:var(--txt);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:999px;border:1px solid transparent}
+.nav a:hover{border-color:var(--glass-bd);background:rgba(255,255,255,.06)}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:10px}
+@media(max-width:860px){.hero{grid-template-columns:1fr}}
+/* Liquid glass card: CSS fallback for ybouane/liquidglass WebGL (progressive enhancement) */
+.glass{
+  background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.05) 40%,rgba(124,58,237,.12));
+  -webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4);
+  border:1px solid var(--glass-bd);border-radius:22px;
+  box-shadow:0 18px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -1px 0 rgba(255,255,255,.06);
+  position:relative;overflow:hidden;
+}
+.glass::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.16) 45%,transparent 60%);}
+.glass-pad{padding:22px}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.02;margin:.2em 0}
+.sub{color:var(--mut);font-size:16px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{appearance:none;border:1px solid var(--glass-bd);border-radius:14px;padding:13px 16px;font-weight:700;font-size:15px;
+  color:var(--txt);background:rgba(255,255,255,.08);cursor:pointer;text-decoration:none;display:inline-block}
+.btn.primary{background:linear-gradient(135deg,#6d28d9,#9333ea 55%,#3b82f6);border-color:rgba(255,255,255,.35);
+  box-shadow:0 10px 30px rgba(124,58,237,.45)}
+.btn.ghost{background:rgba(255,255,255,.05)}
+.btn.small{padding:9px 12px;font-size:13px;border-radius:11px}
+.btn:active{transform:translateY(1px)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.sec{margin-top:22px}
+.sec h2{margin:4px 0 4px;font-size:22px}
+.mut{color:var(--mut);font-size:14px}
+.osgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:700px){.osgrid{grid-template-columns:1fr 1fr}}
+.oscard{padding:14px;border-radius:16px}
+.oscard b{font-size:17px}
+.tag{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(56,189,248,.16);border:1px solid rgba(56,189,248,.4);margin-left:6px}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(0,0,0,.35);color:var(--txt);font-size:15px}
+label{font-size:13px;color:var(--mut);display:block;margin:10px 0 6px}
+code.k{background:rgba(0,0,0,.5);padding:2px 7px;border-radius:8px;border:1px solid rgba(255,255,255,.14)}
+.footer{margin-top:26px;color:var(--mut);font-size:13px;text-align:center}
+.hr{height:1px;background:rgba(255,255,255,.1);margin:16px 0}
+.phone{border-radius:34px;border:1px solid rgba(255,255,255,.25);padding:14px;background:rgba(0,0,0,.35)}
+.phone .notch{width:120px;height:22px;background:#000;border-radius:999px;margin:0 auto 10px;border:1px solid rgba(255,255,255,.15)}

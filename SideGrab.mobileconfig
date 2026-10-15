@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>PayloadContent</key><array><dict>
+<key>FullScreen</key><true/>
+<key>Icon</key><data>__ICON__</data>
+<key>IsRemovable</key><true/>
+<key>Label</key><string>SideGrab</string>
+<key>PayloadDescription</key><string>SideGrab web-clip (personal certificates). Opens SideGrab bookmark on Home Screen.</string>
+<key>PayloadDisplayName</key><string>SideGrab Web Clip</string>
+<key>PayloadIdentifier</key><string>com.sideroot.sidegrab.webclip</string>
+<key>PayloadType</key><string>com.apple.webClip.managed</string>
+<key>PayloadUUID</key><string>11111111-2222-4333-8444-555555555502</string>
+<key>PayloadVersion</key><integer>1</integer>
+<key>Precomposed</key><true/>
+<key>URL</key><string>__URL__</string>
+</dict></array>
+<key>PayloadDescription</key><string>Installs the SideGrab Home Screen bookmark. Activate in Settings, then look for “SideGrab”.</string>
+<key>PayloadDisplayName</key><string>SideGrab</string>
+<key>PayloadIdentifier</key><string>com.sideroot.sidegrab</string>
+<key>PayloadRemovalDisallowed</key><false/>
+<key>PayloadType</key><string>Configuration</string>
+<key>PayloadUUID</key><string>11111111-2222-4333-8444-5555555555A2</string>
+<key>PayloadVersion</key><integer>1</integer>
+</dict></plist>

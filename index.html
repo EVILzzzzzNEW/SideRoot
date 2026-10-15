@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SideRoot — stock-iOS VM lab</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="assets/icon-sideboot.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<div class="bg-orbs"><i></i><i></i><i></i></div>
+<div class="wrap" id="liquid-root">
+  <div class="topbar">
+    <div class="brand"><span class="mark">S</span> SideRoot</div>
+    <div class="nav"><a href="#install">Install</a><a href="#archives">Archives</a><a href="#sideid">SideID</a><a href="sideboot/">SideBoot</a><a href="sidegrab/">SideGrab</a></div>
+  </div>
+
+  <div class="hero">
+    <div class="glass glass-pad" data-liquid>
+      <h1>Virtual machines<br>on stock iOS.</h1>
+      <p class="sub">SideRoot is a static front-door for <b>SideBoot</b> (our own bootstrapper for SideOS virtual machines) and <b>SideGrab</b> (personal signing certificates). No jailbreak required on your real iPhone — everything runs as web-clips + signed VM images.</p>
+      <p class="mut">We use our own bootstrapper called <b>SideBoot</b>.</p>
+      <div class="btnrow" id="install">
+        <a class="btn primary" href="#" id="btnBoot">＋ Install SideBoot</a>
+        <a class="btn" href="#" id="btnGrab">＋ Install SideGrab</a>
+        <a class="btn ghost" href="#archives">⤓ Install Archives</a>
+      </div>
+      <div class="hr"></div>
+      <p class="mut" style="margin:0">How install works (iOS Web-Clip):<br>
+      1) Tap install → downloads a <code class="k">.mobileconfig</code> profile.<br>
+      2) iPhone <b>Settings → Profile Downloaded → Install</b>.<br>
+      3) A <b>bookmark</b> appears on your Home Screen (<b>SideBoot</b> / <b>SideGrab</b>). Open it like an app — it runs fullscreen.</p>
+      <p class="mut" id="installMsg"></p>
+    </div>
+    <div class="glass glass-pad" data-liquid>
+      <div class="phone"><div class="notch"></div>
+        <b>SideBoot</b><p class="mut">Welcome → Continue → <b>+</b> top-right → Sign setup (.p12 / .c12) → Boot menu (spam VOL−) → Install environment (.zip) → Boot SideOS fullscreen.</p>
+        <b>SideGrab</b><p class="mut">SideID login → Dashboard → Personal certificate (3-hour countdown + expiry) → Export .p12 → import into SideBoot.</p>
+        <b>SideOS archives</b><p class="mut">10.0 · 11.5 · 13.5 · 16.3 · 17.9 · 18.3 — newer = more features.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec glass glass-pad" id="archives" data-liquid>
+    <h2>Archives — SideOS images</h2>
+    <p class="mut">Download a <code class="k">.zip</code> with a SideOS image, then in <b>SideBoot → Boot → Install environment</b> pick the zip with the real iOS file picker. Each zip is a custom SideOS project for that version (newer versions unlock more apps/features).</p>
+    <div class="osgrid" id="osgrid"></div>
+    <div class="hr"></div>
+    <p class="mut">KorBrowser (inside every SideOS) ships these sites: <code class="k">jailbreak.com</code> · <code class="k">tweaksrepo.com</code> · <code class="k">trollstore.com</code> · <code class="k">coruna.net</code> · <code class="k">aiprompt.txt</code></p>
+  </div>
+
+  <div class="sec grid2">
+    <div class="glass glass-pad" id="sideid" data-liquid>
+      <h2>Create SideID</h2>
+      <p class="mut">Used by <b>SideGrab</b> login. Saved to MongoDB when the API server is running, otherwise kept on-device (demo fallback).</p>
+      <label>SideID</label><input id="nid" placeholder="e.g. kor_01" autocomplete="username">
+      <label>Password</label><input id="npw" type="password" placeholder="4+ chars" autocomplete="new-password">
+      <div class="btnrow"><button class="btn primary" id="btnCreate">Create SideID</button></div>
+      <p class="mut" id="idMsg"></p>
+      <div class="hr"></div>
+      <p class="mut">API: <code class="k">POST /api/sideid {sideId,password}</code> · <code class="k">GET /api/sideid</code> (see server.js + MongoDB).</p>
+    </div>
+    <div class="glass glass-pad" data-liquid>
+      <h2>Install profiles</h2>
+      <p class="mut">If the one-tap buttons above are blocked by your browser, use these direct files:</p>
+      <div class="btnrow">
+        <a class="btn small" href="SideBoot.mobileconfig" download>SideBoot.mobileconfig</a>
+        <a class="btn small" href="SideGrab.mobileconfig" download>SideGrab.mobileconfig</a>
+        <a class="btn small ghost" href="aiprompt.txt" download>aiprompt.txt</a>
+      </div>
+      <div class="hr"></div>
+      <p class="mut">Icons: SideBoot = black→purple gradient + solid white “S”. SideGrab = white→blue + liquid rhombus. See <code class="k">/assets</code>.</p>
+      <div class="btnrow"><a class="btn small" href="assets/icon-sideboot.svg">SideBoot icon</a><a class="btn small" href="assets/icon-sidegrab.svg">SideGrab icon</a></div>
+    </div>
+  </div>
+
+  <div class="footer">SideRoot · static site · We use our own bootstrapper called SideBoot · liquid-glass UI via <a style="color:#c4b5fd" href="https://github.com/ybouane/liquidglass">ybouane/liquidglass</a></div>
+</div>
+
+<script src="sidestore.js"></script>
+<script>
+const OSES=[
+ {v:"10.0", feats:"KorBrowser · SideBuild · Notes · Files · Terminal · Photos · Calculator · Clock · Calendar · Contacts · Messages · Monitor", tag:"legacy"},
+ {v:"11.5", feats:"+ Control Center · Camera · Music", tag:"legacy"},
+ {v:"13.5", feats:"+ Dark Mode · TrollStore-ready", tag:"stable"},
+ {v:"16.3", feats:"+ Widgets app + Home widgets", tag:"stable"},
+ {v:"17.9", feats:"+ Flex (Coruna) · SideFlows automations", tag:"latest-jb"},
+ {v:"18.3", feats:"newest · NO jailbreak · TrollStore works · SideGPT assistant", tag:"newest"},
+];
+const grid=document.getElementById("osgrid");
+OSES.forEach(o=>{
+ grid.innerHTML+=`<div class="glass oscard"><b>SideOS ${o.v}</b><span class="tag">${o.tag}</span><p class="mut">${o.feats}</p><div class="btnrow"><a class="btn small primary" href="archives/sideos-${o.v}.zip" download>⤓ sideos-${o.v}.zip</a></div></div>`;
+});
+function abs(p){ return new URL(p, location.href).href; }
+async function regenConfig(kind){
+  // Re-generate mobileconfig on the fly so the Web-Clip URL always points at THIS host.
+  const url = abs(kind==="boot"?"sideboot/":"sidegrab/");
+  const name = kind==="boot"?"SideBoot":"SideGrab";
+  const iconB64 = await (await fetch("assets/"+(kind==="boot"?"icon-sideboot.png":"icon-sidegrab.png"))).blob()
+    .then(b=>new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(",")[1]);fr.readAsDataURL(b);})).catch(()=>null);
+  let tpl = await (await fetch(kind==="boot"?"SideBoot.mobileconfig":"SideGrab.mobileconfig")).text();
+  tpl = tpl.replace(/__URL__/g, url).replace(/__ICON__/g, iconB64||"");
+  SideStore.download(name+".mobileconfig", tpl, "application/x-apple-aspen-config");
+  document.getElementById("installMsg").textContent = name+" profile downloaded. Now: iPhone Settings → Profile Downloaded → Install → Home Screen bookmark “"+name+"”.";
+}
+document.getElementById("btnBoot").onclick=e=>{e.preventDefault();regenConfig("boot");};
+document.getElementById("btnGrab").onclick=e=>{e.preventDefault();regenConfig("grab");};
+document.getElementById("btnCreate").onclick=async()=>{
+  const m=document.getElementById("idMsg");
+  try{ const r=await SideStore.createSideId(document.getElementById("nid").value,document.getElementById("npw").value);
+    m.textContent="SideID “"+r.sideId+"” created. Signing code "+r.signingCode+". Expiry: "+new Date(r.expiresAt).toLocaleString()+". Now open SideGrab and sign in.";
+  }catch(e){ m.textContent="Error: "+e.message; }
+};
+</script>
+<script type="module">
+try{
+  const {LiquidGlass}=await import("https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js");
+  const root=document.getElementById("liquid-root");
+  const els=[...root.querySelectorAll("[data-liquid]")];
+  // liquidglass wants glass elements as DIRECT children of root; wrap approach: init per-section root
+  for(const el of els){ try{ await LiquidGlass.init({root:el.parentElement,glassElements:[el]});}catch(e){} }
+}catch(e){/* CSS fallback stays */}
+</script>
+</body>
+</html>

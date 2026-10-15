@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>PayloadContent</key><array><dict>
+<key>FullScreen</key><true/>
+<key>Icon</key><data>__ICON__</data>
+<key>IsRemovable</key><true/>
+<key>Label</key><string>SideBoot</string>
+<key>PayloadDescription</key><string>SideBoot web-clip (fullscreen VM bootstrapper). Opens SideBoot bookmark on Home Screen.</string>
+<key>PayloadDisplayName</key><string>SideBoot Web Clip</string>
+<key>PayloadIdentifier</key><string>com.sideroot.sideboot.webclip</string>
+<key>PayloadType</key><string>com.apple.webClip.managed</string>
+<key>PayloadUUID</key><string>11111111-2222-4333-8444-555555555501</string>
+<key>PayloadVersion</key><integer>1</integer>
+<key>Precomposed</key><true/>
+<key>URL</key><string>__URL__</string>
+</dict></array>
+<key>PayloadDescription</key><string>Installs the SideBoot Home Screen bookmark. Activate in Settings, then look for “SideBoot”.</string>
+<key>PayloadDisplayName</key><string>SideBoot</string>
+<key>PayloadIdentifier</key><string>com.sideroot.sideboot</string>
+<key>PayloadRemovalDisallowed</key><false/>
+<key>PayloadType</key><string>Configuration</string>
+<key>PayloadUUID</key><string>11111111-2222-4333-8444-5555555555A1</string>
+<key>PayloadVersion</key><integer>1</integer>
+</dict></plist>
