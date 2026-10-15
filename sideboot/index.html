@@ -41,9 +41,11 @@ input{width:100%;background:#000;border:1px solid #444;color:#fff;border-radius:
 #boot h2{background:#1e3a8a;color:#fff;padding:8px 12px;margin:0 -18px 12px}
 .bopt{border:1px solid #3b5bdb;padding:12px;margin:8px 0;cursor:pointer}
 .bopt.sel{background:#1e3a8a;color:#fff}
-#volbar{position:fixed;right:10px;bottom:14px;z-index:46;display:flex;gap:8px}
-#volbar button{width:56px;height:56px;border-radius:50%;background:#222;border:2px solid #666;color:#fff;font-weight:800}
-#volbar .selbtn{width:auto;border-radius:14px;padding:0 14px;border-color:#a855f7}
+#boot{touch-action:manipulation}
+#boot .inner{touch-action:manipulation}
+.bopt{user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.logo .mark{cursor:pointer;touch-action:manipulation}
+#tapzone{user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer}
 #log{background:#000;border:1px solid #444;border-radius:10px;padding:10px;font-size:12px;white-space:pre-wrap;max-height:300px;overflow:auto}
 dialog{background:#15151d;color:#eee;border:1px solid #444;border-radius:14px;max-width:440px;width:92vw}
 dialog::backdrop{background:rgba(0,0,0,.6)}
@@ -52,13 +54,13 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 <body>
 <div id="app">
   <header>
-    <div class="logo"><div class="mark">S</div><div><b>SideBoot</b><br><span class="mut">stock-iOS VM bootstrapper</span></div></div>
+    <div class="logo" id="tapzone" title="Rapid-tap 5× to open Boot"><div class="mark">S</div><div><b>SideBoot</b><br><span class="mut">stock-iOS VM bootstrapper</span></div></div>
     <button class="plusbtn" id="plus" title="Sign setup">+</button>
   </header>
   <main>
     <div class="card"><b>Certificates</b> <span class="mut">(imported .p12 / .c12 — kept after reopen)</span><div id="certs"></div></div>
     <div class="card"><b>Virtual machines</b> <span class="mut">(separate list — tap one to select + restart)</span><div id="vms"></div></div>
-    <div class="card mut">To open <b>Boot</b>: spam <b>VOL−</b> 5× fast.<br>iOS Safari can't read hardware volume keys, so this demo also accepts: tapping <b>VOL−</b> below 5× fast, or pressing the <b>−</b> key 5×.<br>Inside Boot: <b>− / +</b> to move, <b>press both together</b> (or SELECT) to choose.<br>“See boot options” was removed — Boot now shows: Install environment · Boot to selected · Exit.</div>
+    <div class="card mut" id="bootHint">To open <b>Boot</b>: <b>rapid-tap the S logo 5×</b> fast (stands in for volume-DOWN spam — iOS gives web-clips no access to the real hardware volume keys, so taps are the trigger; on desktop, press <b>−</b> 5×).<br>Inside Boot: <b>tap</b> an option to move there, <b>double-tap it (or two-finger-tap anywhere)</b> to choose — that's the “press + and − together” gesture.<br>Boot shows: Install environment · Boot to selected · Exit.</div>
     <div class="card"><b>Boot log</b><pre id="log">ready.</pre></div>
   </main>
 </div>
@@ -73,13 +75,11 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 
 <div id="boot"><div class="inner">
   <h2>Boot — SideBoot Setup</h2>
-  <div class="mut" style="color:#8ab4ff">− / + or VOL−/VOL+ to move · press + and − together (or SELECT) to choose</div>
+  <div class="mut" style="color:#8ab4ff">tap = move · double-tap / two-finger-tap = choose · (−/+ keys on desktop)</div>
   <div id="bopts"></div>
   <pre id="bootlog" style="background:#000;border:1px solid #3b5bdb;padding:10px;white-space:pre-wrap;max-height:280px;overflow:auto"></pre>
   <div class="btnrow"><button class="btn" id="bootExit">Exit (Esc)</button></div>
 </div></div>
-
-<div id="volbar"><button id="vminus">−<br><small>VOL</small></button><button id="vplus">+<br><small>VOL</small></button><button class="selbtn" id="vsel">SELECT<br><small>(+ & −)</small></button></div>
 
 <dialog id="dlg"><form method="dialog">
   <h3 style="margin:0">Sign setup</h3>
@@ -109,7 +109,7 @@ function renderLists(){
     return `<div class="cert"><span><b>${esc(c.name)}</b><br><span class="mut">code ${esc(p.code||"?")} · ${p.expiresAt?("exp "+new Date(p.expiresAt).toLocaleString()):"no expiry"}${c.locked?" · 🔒":""}</span></span><span class="badge ${ok?"ok":"bad"}">${ok?"VALID":"EXPIRED / LOCKED"}</span></div>`}).join(""):'<p class="mut">No certificates. Tap + top-right.</p>';
   $("#vms").innerHTML=vms.length?vms.map(v=>`<div class="vm" data-id="${v.id}"><span><b>${esc(v.name)}</b> <span class="mut">SideOS ${esc(v.version)}</span><br><span class="mut">${esc(v.id.slice(0,6))} · ${(Object.keys(v.fs||{}).length)} files${pendingBoot===v.id?" · SELECTED":""}</span></span><span class="badge">BOOT</span></div>`).join(""):'<p class="mut">No VMs. Open Boot → Install environment → pick a .zip.</p>';
   document.querySelectorAll(".vm").forEach(el=>el.onclick=()=>{
-    if(confirm("Select “"+el.querySelector("b").textContent+"” and restart SideBoot? After restart, spam VOL− to open Boot → Boot to selected.")){
+    if(confirm("Select “"+el.querySelector("b").textContent+"” and restart SideBoot? After restart, rapid-tap the S logo to open Boot → Boot to selected.")){
       sessionStorage.setItem("sideboot_pending",el.dataset.id); location.reload(); }
   });
 }
@@ -134,24 +134,23 @@ $("#reg").onclick=e=>{
   };
   rd.readAsText(f);
 };
-/* ---- volume-emulation + Boot ---- */
-let minusHits=[], plusDown=false, minusDown=false, lastPlus=0, lastMinus=0, bootOpen=false, sel=0;
-function spamMinus(){
-  const t=Date.now(); minusHits=minusHits.filter(x=>t-x<2000); minusHits.push(t);
-  if(minusHits.length>=5 && !bootOpen){ openBoot(); minusHits=[]; return; }
-  if(bootOpen){ moveSel(1); }
+/* ---- Boot trigger: rapid-tap logo (touch) / minus key (desktop) ---- */
+/* NOTE: real iPhone volume keys are NOT readable from a web-clip — Apple exposes
+   no API for them. Rapid taps on the logo stand in for volume-DOWN spam. */
+let tapHits=[], bootOpen=false, sel=0;
+function tapTrigger(){
+  const t=Date.now(); tapHits=tapHits.filter(x=>t-x<2000); tapHits.push(t);
+  if(tapHits.length>=5 && !bootOpen){ openBoot(); tapHits=[]; }
 }
-function spamPlus(){ if(bootOpen) moveSel(-1); }
-function bothTogether(){ if(bootOpen) chooseSel(); }
-$("#vminus").onclick=()=>{const t=Date.now();minusDown=true;if(t-lastPlus<300){bothTogether()}else spamMinus();lastMinus=t;setTimeout(()=>minusDown=false,350)};
-$("#vplus").onclick=()=>{const t=Date.now();plusDown=true;if(t-lastMinus<300){bothTogether()}else spamPlus();lastPlus=t;setTimeout(()=>plusDown=false,350)};
-$("#vsel").onclick=()=>bothTogether();
+$("#tapzone").addEventListener("click",tapTrigger);
 window.addEventListener("keydown",e=>{
-  if(e.key==="-"){spamMinus();if(plusDown)bothTogether();minusDown=true;setTimeout(()=>minusDown=false,350)}
-  if(e.key==="+"||e.key==="="){spamPlus();if(minusDown)bothTogether();plusDown=true;setTimeout(()=>plusDown=false,350)}
+  if(e.key==="-"){ if(!bootOpen) tapTrigger(); else moveSel(1); }
+  if(e.key==="+"||e.key==="="){ if(bootOpen) moveSel(-1); }
   if(e.key==="Enter"&&bootOpen)chooseSel();
   if(e.key==="Escape"&&bootOpen)closeBoot();
 });
+// two-finger tap anywhere inside Boot = "press + and − together" = choose
+$("#boot").addEventListener("touchstart",e=>{ if(e.touches.length===2 && bootOpen){ e.preventDefault(); chooseSel(); } },{passive:false});
 function validCert(){ for(const c of certs){const p=SideStore.parseCertText(c.text); if(p.valid&&(!c.locked||c.unlocked)) return {c,p}} return null; }
 function bootOpts(){
   const o=[{id:"install",t:"Install environment"}];
@@ -166,7 +165,8 @@ $("#bootExit").onclick=closeBoot;
 function drawBoot(){
   const o=bootOpts(); sel=Math.max(0,Math.min(sel,o.length-1));
   $("#bopts").innerHTML=o.map((x,i)=>`<div class="bopt ${i===sel?"sel":""}" data-i="${i}">${i===sel?"▶ ":"&nbsp;&nbsp;"}${esc(x.t)}</div>`).join("");
-  document.querySelectorAll(".bopt").forEach(el=>el.onclick=()=>{sel=+el.dataset.i;chooseSel()});
+  // tap = move there · tap the already-selected option = choose (double-tap)
+  document.querySelectorAll(".bopt").forEach(el=>el.onclick=()=>{const i=+el.dataset.i; if(i===sel) chooseSel(); else {sel=i;drawBoot();}});
 }
 function moveSel(d){ sel+=d; drawBoot(); }
 function blog(t){const e=$("#bootlog");e.textContent+=(e.textContent?"\n":"")+t;e.scrollTop=1e6}
@@ -190,15 +190,13 @@ $("#zipPick").onchange=async e=>{
     if(!ver){ const m=f.name.match(/(10\.0|11\.5|13\.5|16\.3|17\.9|18\.3)/); ver=m&&m[1]; }
   }catch(err){ blog("zip parse note: "+err.message+" (continuing with filename detect)"); const m=f.name.match(/(10\.0|11\.5|13\.5|16\.3|17\.9|18\.3)/); ver=m&&m[1]; }
   ver=ver||"17.9";
-  const steps=[`extracting ${names.length||"~140"} files…`,"pulling up files… rootfs, kernel, KorBrowser, SideBuild…",`signing with ${vc.p.code} (${vc.c.name})…`,"verifying signature… OK","running preboot… OK","prepare complete — press + and − together to Boot."];
+  const steps=[`extracting ${names.length||"~140"} files…`,"pulling up files… rootfs, kernel, KorBrowser, SideBuild…",`signing with ${vc.p.code} (${vc.c.name})…`,"verifying signature… OK","running preboot… OK","prepare complete — double-tap an option in Boot to start it."];
   steps.forEach((s,i)=>setTimeout(()=>{blog(s);log(s)},600*(i+1)));
   setTimeout(()=>{
     const vm={id:"vm"+Date.now().toString(36),name:"SideOS "+ver,version:ver,fs:{"/.manifest":f.name},iconPos:{},tweaks:{},installedApps:[],createdAt:Date.now()};
     vms.push(vm); save(LV,vms); renderLists();
     pendingBoot=vm.id; sessionStorage.setItem("sideboot_pending",vm.id);
-    blog("VM saved. Press SELECT (+ & −) now to boot it fullscreen.");
-    const once=()=>{ startVM(vm); $("#vsel").removeEventListener("click",once); };
-    $("#vsel").addEventListener("click",once);
+    blog("VM saved. Double-tap 'Boot to selected' to start it fullscreen.");
   },600*steps.length+400);
 };
 function installFlow(){ blog("Choose a .zip with an OS (real iOS file picker)…"); $("#zipPick").click(); }
