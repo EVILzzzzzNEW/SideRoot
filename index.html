@@ -18,32 +18,42 @@
 
   <div class="hero">
     <div class="glass glass-pad" data-liquid>
-      <h1>Virtual machines<br>on stock iOS.</h1>
-      <p class="sub">SideRoot is a static front-door for <b>SideBoot</b> (our own bootstrapper for SideOS virtual machines) and <b>SideGrab</b> (personal signing certificates). No jailbreak required on your real iPhone — everything runs as web-clips + signed VM images.</p>
+      <h1>Virtual machines<br><span class="grad">on stock iOS.</span></h1>
+      <p class="sub">SideRoot is a static front-door for <b>SideBoot</b> (our own bootstrapper for SideOS virtual machines) and <b>.p12 certificates</b> (personal signing). No jailbreak required on your real iPhone — everything runs as a web-clip + signed VM images.</p>
+      <div class="pills"><span class="pill">✦ No jailbreak needed</span><span class="pill">▣ Fullscreen web-clip</span><span class="pill">⬢ 6 SideOS builds</span></div>
       <p class="mut">We use our own bootstrapper called <b>SideBoot</b>.</p>
       <div class="btnrow" id="install">
         <a class="btn primary" href="#" id="btnBoot">＋ Install SideBoot</a>
-        <a class="btn" href="#" id="btnGrab">＋ Install SideGrab</a>
+        <a class="btn" href="#sideid">＋ Get certificate (.p12)</a>
         <a class="btn ghost" href="#archives">⤓ Install Archives</a>
       </div>
       <div class="hr"></div>
-      <p class="mut" style="margin:0">How install works (iOS Web-Clip):<br>
-      1) Tap install → downloads a <code class="k">.mobileconfig</code> profile.<br>
-      2) iPhone <b>Settings → Profile Downloaded → Install</b>.<br>
-      3) A <b>bookmark</b> appears on your Home Screen (<b>SideBoot</b> / <b>SideGrab</b>). Open it like an app — it runs fullscreen.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><span>Tap <b>Install SideBoot</b> → open the downloaded profile in iPhone <b>Settings → Profile Downloaded → Install</b> → a <b>SideBoot</b> bookmark lands on your Home Screen.</span></li>
+        <li><span class="n">2</span><span>Create a <b>SideID</b> below → <b>Download .p12</b> (no profile needed) → import it in SideBoot (<b>+ → Sign setup</b>).</span></li>
+        <li><span class="n">3</span><span>In SideBoot, rapid-tap the <b>S logo</b> → <b>Install environment</b> → pick a <b>.zip</b> from Archives → boot SideOS fullscreen.</span></li>
+      </ol>
       <p class="mut" id="installMsg"></p>
     </div>
     <div class="glass glass-pad" data-liquid>
       <div class="phone"><div class="notch"></div>
-        <b>SideBoot</b><p class="mut">Welcome → Continue → <b>+</b> top-right → Sign setup (.p12 / .c12) → Boot menu (spam VOL−) → Install environment (.zip) → Boot SideOS fullscreen.</p>
-        <b>SideGrab</b><p class="mut">SideID login → Dashboard → Personal certificate (3-hour countdown + expiry) → Export .p12 → import into SideBoot.</p>
-        <b>SideOS archives</b><p class="mut">10.0 · 11.5 · 13.5 · 16.3 · 17.9 · 18.3 — newer = more features.</p>
+        <div class="mscreen"><div class="mtime">9:41 · SideOS 17.9 💜</div>
+          <div class="mgrid">
+            <div class="mi">🧭<span>Kor</span></div><div class="mi">🛠<span>Build</span></div><div class="mi">📂<span>Files</span></div><div class="mi">💻<span>Term</span></div>
+            <div class="mi">🖼<span>Photos</span></div><div class="mi">🎵<span>Music</span></div><div class="mi">🐴<span>Troll</span></div><div class="mi">📦<span>Sileo</span></div>
+          </div>
+        </div>
+        <div class="flows">
+          <div class="frow"><b>SideBoot</b> <span class="mut">— welcome → + sign setup → rapid-tap S → install .zip → boot</span></div>
+          <div class="frow"><b>.p12 certificate</b> <span class="mut">— SideID → download → import into SideBoot</span></div>
+          <div class="frow"><b>Archives</b> <span class="mut">— 10.0 · 11.5 · 13.5 · 16.3 · 17.9 · 18.3, newer = more apps</span></div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="sec glass glass-pad" id="archives" data-liquid>
-    <h2>Archives — SideOS images</h2>
+    <h2>Archives — SideOS images <span class="tag">6 builds</span></h2>
     <p class="mut">Download a <code class="k">.zip</code> with a SideOS image, then in <b>SideBoot → Boot → Install environment</b> pick the zip with the real iOS file picker. Each zip is a custom SideOS project for that version (newer versions unlock more apps/features).</p>
     <div class="osgrid" id="osgrid"></div>
     <div class="hr"></div>
@@ -52,21 +62,22 @@
 
   <div class="sec grid2">
     <div class="glass glass-pad" id="sideid" data-liquid>
-      <h2>Create SideID</h2>
-      <p class="mut">Used by <b>SideGrab</b> login. Saved to MongoDB when the API server is running, otherwise kept on-device (demo fallback).</p>
+      <h2>SideID + certificate (.p12)</h2>
+      <p class="mut">Create an ID, then download your personal certificate <b>directly as a .p12 file</b> — no profile to install. Saved to MongoDB when the API server is running, otherwise kept on-device (demo fallback).</p>
       <label>SideID</label><input id="nid" placeholder="e.g. kor_01" autocomplete="username">
       <label>Password</label><input id="npw" type="password" placeholder="4+ chars" autocomplete="new-password">
-      <div class="btnrow"><button class="btn primary" id="btnCreate">Create SideID</button></div>
+      <label>Private password for the .p12 (optional — SideBoot will ask for it on import)</label><input id="np12pw" type="password" placeholder="leave empty for none">
+      <div class="btnrow"><button class="btn primary" id="btnCreate">Create SideID</button><button class="btn" id="btnP12" disabled>Download .p12</button></div>
       <p class="mut" id="idMsg"></p>
       <div class="hr"></div>
-      <p class="mut">API: <code class="k">POST /api/sideid {sideId,password}</code> · <code class="k">GET /api/sideid</code> (see server.js + MongoDB).</p>
+      <p class="mut">Want the dashboard with 3-hour countdown + re-export? Open the optional <a style="color:#c4b5fd" href="sidegrab/">SideGrab bookmark</a> and sign in. API: <code class="k">POST /api/sideid {sideId,password}</code> (see server.js + MongoDB).</p>
     </div>
     <div class="glass glass-pad" data-liquid>
-      <h2>Install profiles</h2>
-      <p class="mut">If the one-tap buttons above are blocked by your browser, use these direct files:</p>
+      <h2>Install files</h2>
+      <p class="mut">SideBoot installs via profile. Certificates are plain .p12 downloads (above) — no profile. SideGrab is an optional dashboard bookmark:</p>
       <div class="btnrow">
         <a class="btn small" href="SideBoot.mobileconfig" download>SideBoot.mobileconfig</a>
-        <a class="btn small" href="SideGrab.mobileconfig" download>SideGrab.mobileconfig</a>
+        <a class="btn small" href="sidegrab/">SideGrab dashboard</a>
         <a class="btn small ghost" href="aiprompt.txt" download>aiprompt.txt</a>
       </div>
       <div class="hr"></div>
@@ -75,7 +86,7 @@
     </div>
   </div>
 
-  <div class="footer">SideRoot · static site · We use our own bootstrapper called SideBoot · liquid-glass UI via <a style="color:#c4b5fd" href="https://github.com/ybouane/liquidglass">ybouane/liquidglass</a></div>
+  <div class="footer"><b>SideRoot</b> · We use our own bootstrapper called SideBoot<br><span>Liquid-glass UI via <a style="color:#c4b5fd" href="https://github.com/ybouane/liquidglass">ybouane/liquidglass</a> · SideBoot stays flat by design</span></div>
 </div>
 
 <script src="sidestore.js"></script>
@@ -90,27 +101,33 @@ const OSES=[
 ];
 const grid=document.getElementById("osgrid");
 OSES.forEach(o=>{
- grid.innerHTML+=`<div class="glass oscard"><b>SideOS ${o.v}</b><span class="tag">${o.tag}</span><p class="mut">${o.feats}</p><div class="btnrow"><a class="btn small primary" href="archives/sideos-${o.v}.zip" download>⤓ sideos-${o.v}.zip</a></div></div>`;
+ grid.innerHTML+=`<div class="glass oscard"><span class="ver">SideOS ${o.v}</span><span class="tag">${o.tag}</span><div class="bar"></div><p class="mut">${o.feats}</p><div class="btnrow"><a class="btn small primary" href="archives/sideos-${o.v}.zip" download>⤓ sideos-${o.v}.zip</a></div></div>`;
 });
 function abs(p){ return new URL(p, location.href).href; }
-async function regenConfig(kind){
-  // Re-generate mobileconfig on the fly so the Web-Clip URL always points at THIS host.
-  const url = abs(kind==="boot"?"sideboot/":"sidegrab/");
-  const name = kind==="boot"?"SideBoot":"SideGrab";
-  const iconB64 = await (await fetch("assets/"+(kind==="boot"?"icon-sideboot.png":"icon-sidegrab.png"))).blob()
+async function regenConfig(){
+  // Re-generate the SideBoot mobileconfig on the fly so the Web-Clip URL always points at THIS host.
+  const url = abs("sideboot/");
+  const iconB64 = await (await fetch("assets/icon-sideboot.png")).blob()
     .then(b=>new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(",")[1]);fr.readAsDataURL(b);})).catch(()=>null);
-  let tpl = await (await fetch(kind==="boot"?"SideBoot.mobileconfig":"SideGrab.mobileconfig")).text();
+  let tpl = await (await fetch("SideBoot.mobileconfig")).text();
   tpl = tpl.replace(/__URL__/g, url).replace(/__ICON__/g, iconB64||"");
-  SideStore.download(name+".mobileconfig", tpl, "application/x-apple-aspen-config");
-  document.getElementById("installMsg").textContent = name+" profile downloaded. Now: iPhone Settings → Profile Downloaded → Install → Home Screen bookmark “"+name+"”.";
+  SideStore.download("SideBoot.mobileconfig", tpl, "application/x-apple-aspen-config");
+  document.getElementById("installMsg").textContent = "SideBoot profile downloaded. Now: iPhone Settings → Profile Downloaded → Install → Home Screen bookmark “SideBoot”.";
 }
-document.getElementById("btnBoot").onclick=e=>{e.preventDefault();regenConfig("boot");};
-document.getElementById("btnGrab").onclick=e=>{e.preventDefault();regenConfig("grab");};
+document.getElementById("btnBoot").onclick=e=>{e.preventDefault();regenConfig();};
+let lastRec=null;
 document.getElementById("btnCreate").onclick=async()=>{
   const m=document.getElementById("idMsg");
   try{ const r=await SideStore.createSideId(document.getElementById("nid").value,document.getElementById("npw").value);
-    m.textContent="SideID “"+r.sideId+"” created. Signing code "+r.signingCode+". Expiry: "+new Date(r.expiresAt).toLocaleString()+". Now open SideGrab and sign in.";
+    lastRec=r; document.getElementById("btnP12").disabled=false;
+    m.textContent="SideID “"+r.sideId+"” created. Signing code "+r.signingCode+". Expiry: "+new Date(r.expiresAt).toLocaleString()+". Now tap Download .p12 and import it in SideBoot.";
   }catch(e){ m.textContent="Error: "+e.message; }
+};
+document.getElementById("btnP12").onclick=()=>{
+  const m=document.getElementById("idMsg");
+  if(!lastRec){ m.textContent="Create a SideID first."; return; }
+  SideStore.download("SideID-"+lastRec.sideId+".p12",SideStore.buildCertFile(lastRec,document.getElementById("np12pw").value),"application/x-pkcs12");
+  m.textContent="Downloaded SideID-"+lastRec.sideId+".p12 ✓ — import it in SideBoot (+ → Sign setup).";
 };
 </script>
 <script type="module">
