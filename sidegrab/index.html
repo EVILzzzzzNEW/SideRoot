@@ -32,12 +32,12 @@
     <div class="glass glass-pad" style="text-align:center;font-size:40px;font-weight:800;letter-spacing:1px" id="count">3:00:00</div>
     <p class="mut" id="expLine"></p>
     <p class="mut" id="codeLine"></p>
-    <label>Private password for the .p12 (optional — SideBoot will ask for it on import)</label>
+    <label>Private password for the .c12 (optional — SideBoot will ask for it on import)</label>
     <input id="ppw" type="password" placeholder="leave empty for no password">
-    <div class="btnrow"><button class="btn primary" id="btnExport">Export certificate (.p12)</button><button class="btn ghost" id="btnOut">Sign out</button></div>
+    <div class="btnrow"><button class="btn primary" id="btnExport">Export certificate (.c12)</button><button class="btn ghost" id="btnOut">Sign out</button></div>
     <p class="mut" id="dmsg"></p>
     <div class="hr"></div>
-    <p class="mut">The export is a real download named <code class="k">SideID-&lt;id&gt;.p12</code> (extension .p12, not .txt). Inside: your signing code (<b>2 letters + 2 numbers</b>, e.g. AB12) — SideBoot uses it to detect valid vs expired — plus your private password.</p>
+    <p class="mut">The export is a real download named <code class="k">SideID-&lt;id&gt;.c12</code> (extension .c12, not .txt). Inside: your signing code (<b>2 letters + 2 numbers</b>, e.g. AB12) — SideBoot uses it to detect valid vs expired — plus your private password.</p>
   </div>
   <div class="footer">SideGrab · liquid glass · bookmark installed via profile</div>
 </div>
@@ -64,8 +64,8 @@ function tick(){
 $("#btnExport").onclick=()=>{
   if(!rec)return;
   const txt=SideStore.buildCertFile(rec,$("#ppw").value);
-  SideStore.download("SideID-"+rec.sideId+".p12",txt,"application/x-pkcs12");
-  $("#dmsg").textContent="Exported SideID-"+rec.sideId+".p12 ✓ — import it in SideBoot (+ → Sign setup)."+($("#ppw").value?" Private password set.":" No private password.");
+  SideStore.download("SideID-"+rec.sideId+".c12",txt,"application/octet-stream");
+  $("#dmsg").textContent="Exported SideID-"+rec.sideId+".c12 ✓ — import it in SideBoot (+ → Sign setup)."+($("#ppw").value?" Private password set.":" No private password.");
 };
 $("#btnOut").onclick=()=>location.reload();
 </script>
