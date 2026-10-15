@@ -58,7 +58,7 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
     <button class="plusbtn" id="plus" title="Sign setup">+</button>
   </header>
   <main>
-    <div class="card"><b>Certificates</b> <span class="mut">(imported .p12 / .c12 — kept after reopen)</span><div id="certs"></div></div>
+    <div class="card"><b>Certificates</b> <span class="mut">(imported .c12 — kept after reopen)</span><div id="certs"></div></div>
     <div class="card"><b>Virtual machines</b> <span class="mut">(separate list — tap one to select + restart)</span><div id="vms"></div></div>
     <div class="card mut" id="bootHint">To open <b>Boot</b>: <b>rapid-tap the S logo 5×</b> fast (stands in for volume-DOWN spam — iOS gives web-clips no access to the real hardware volume keys, so taps are the trigger; on desktop, press <b>−</b> 5×).<br>Inside Boot: <b>tap</b> an option to move there, <b>double-tap it (or two-finger-tap anywhere)</b> to choose — that's the “press + and − together” gesture.<br>Boot shows: Install environment · Boot to selected · Exit.</div>
     <div class="card"><b>Boot log</b><pre id="log">ready.</pre></div>
@@ -83,8 +83,8 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 
 <dialog id="dlg"><form method="dialog">
   <h3 style="margin:0">Sign setup</h3>
-  <p class="mut">Choose a <b>.p12 / .c12</b> certificate file (exported from SideGrab), enter its private password (if it has one), tap Register.</p>
-  <input type="file" id="f" accept=".p12,.pfx,.c12,.mobileprovision,application/octet-stream">
+  <p class="mut">Choose a <b>.c12</b> certificate file (exported from the website or SideGrab), enter its private password (if it has one), tap Register.</p>
+  <input type="file" id="f" accept=".c12,.p12,.pfx,.mobileprovision,application/octet-stream">
   <input type="password" id="pw" placeholder="password from the certificate (optional)">
   <div class="btnrow"><button class="btn pri" id="reg" value="default">Register</button><button class="btn" value="cancel">Close</button></div>
   <p class="mut" id="dmsg"></p>
@@ -121,7 +121,7 @@ $("#cont").onclick=()=>{sessionStorage.setItem("sb_welcomed","1");$("#welcome").
 $("#plus").onclick=()=>{$("#dmsg").textContent="";$("#dlg").showModal()};
 $("#reg").onclick=e=>{
   e.preventDefault();
-  const f=$("#f").files[0]; if(!f){$("#dmsg").textContent="Choose a .p12/.c12 file first.";return}
+  const f=$("#f").files[0]; if(!f){$("#dmsg").textContent="Choose a .c12 file first.";return}
   const rd=new FileReader();
   rd.onload=()=>{
     const text=String(rd.result||"");
@@ -180,7 +180,7 @@ function chooseSel(){
 $("#zipPick").onchange=async e=>{
   const f=e.target.files[0]; e.target.value=""; if(!f) return;
   const vc=validCert();
-  if(!vc){ ["extracting…","pulling files…","certificate request_0","BOOT LOCKED — certificate expired/missing. Import a valid .p12 in + menu."].forEach((l,i)=>setTimeout(()=>blog(l),i*500)); log("install failed: certificate request_0"); return; }
+  if(!vc){ ["extracting…","pulling files…","certificate request_0","BOOT LOCKED — certificate expired/missing. Import a valid .c12 in + menu."].forEach((l,i)=>setTimeout(()=>blog(l),i*500)); log("install failed: certificate request_0"); return; }
   blog("Selected "+f.name+" ("+Math.round(f.size/1024)+" KB)");
   let ver=null, names=[];
   try{
