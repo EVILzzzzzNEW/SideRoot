@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SideGrab</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SideGrab">
+<link rel="apple-touch-icon" href="../assets/icon-sidegrab.svg">
+<link rel="icon" href="../assets/icon-sidegrab.svg">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="bg-orbs"><i></i><i></i><i></i></div>
+<div class="wrap" id="liquid-root" style="max-width:520px">
+  <div class="topbar"><div class="brand"><span class="mark" style="background:linear-gradient(135deg,#fff,#7cc7f5 55%,#2563eb);color:#034">◈</span> SideGrab</div>
+  <div class="nav"><a href="../">SideRoot</a></div></div>
+
+  <div class="glass glass-pad" data-liquid id="authCard">
+    <h2 style="margin:0">Sign in with SideID</h2>
+    <p class="mut">Create your SideID on the SideRoot website first — it saves to MongoDB (or this device in demo mode).</p>
+    <label>SideID</label><input id="lid" placeholder="your SideID" autocomplete="username">
+    <label>Password</label><input id="lpw" type="password" placeholder="password" autocomplete="current-password">
+    <div class="btnrow"><button class="btn primary" id="btnLogin">Sign in</button><button class="btn ghost" id="btnGoCreate">Create on SideRoot</button></div>
+    <p class="mut" id="amsg"></p>
+  </div>
+
+  <div class="glass glass-pad" data-liquid id="dashCard" style="display:none">
+    <p class="mut" style="margin:0">🏠 Home · Dashboard</p>
+    <h1 style="font-size:34px;margin:6px 0">Personal certificate</h1>
+    <p class="mut">Counting down from creation — <b>3 hours</b> total. Export before it hits zero.</p>
+    <div class="glass glass-pad" style="text-align:center;font-size:40px;font-weight:800;letter-spacing:1px" id="count">3:00:00</div>
+    <p class="mut" id="expLine"></p>
+    <p class="mut" id="codeLine"></p>
+    <label>Private password for the .p12 (optional — SideBoot will ask for it on import)</label>
+    <input id="ppw" type="password" placeholder="leave empty for no password">
+    <div class="btnrow"><button class="btn primary" id="btnExport">Export certificate (.p12)</button><button class="btn ghost" id="btnOut">Sign out</button></div>
+    <p class="mut" id="dmsg"></p>
+    <div class="hr"></div>
+    <p class="mut">The export is a real download named <code class="k">SideID-&lt;id&gt;.p12</code> (extension .p12, not .txt). Inside: your signing code (<b>2 letters + 2 numbers</b>, e.g. AB12) — SideBoot uses it to detect valid vs expired — plus your private password.</p>
+  </div>
+  <div class="footer">SideGrab · liquid glass · bookmark installed via profile</div>
+</div>
+<script src="../sidestore.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+let rec=null, timer=null;
+$("#btnGoCreate").onclick=()=>location.href="../#sideid";
+$("#btnLogin").onclick=()=>{
+  const id=$("#lid").value.trim(), pw=$("#lpw").value;
+  const r=SideStore.verifyLocal(id,pw);
+  if(!r){$("#amsg").textContent="Unknown SideID/password on this device. Create it on SideRoot first (same browser profile).";return}
+  rec=r; $("#authCard").style.display="none"; $("#dashCard").style.display="";
+  $("#codeLine").innerHTML="Signing code: <code class='k'>"+r.signingCode+"</code>";
+  tick(); timer=setInterval(tick,1000);
+};
+function tick(){
+  const left=rec.expiresAt-Date.now();
+  $("#expLine").textContent="Certificate expiration date: "+new Date(rec.expiresAt).toLocaleString();
+  if(left<=0){$("#count").textContent="0:00:00 EXPIRED";$("#dmsg").textContent="Expired — SideBoot will show certificate request_0 and refuse to boot. Create a fresh SideID.";clearInterval(timer);return}
+  const h=Math.floor(left/3600000),m=Math.floor(left%3600000/60000),s=Math.floor(left%60000/1000);
+  $("#count").textContent=h+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+$("#btnExport").onclick=()=>{
+  if(!rec)return;
+  const txt=SideStore.buildCertFile(rec,$("#ppw").value);
+  SideStore.download("SideID-"+rec.sideId+".p12",txt,"application/x-pkcs12");
+  $("#dmsg").textContent="Exported SideID-"+rec.sideId+".p12 ✓ — import it in SideBoot (+ → Sign setup)."+($("#ppw").value?" Private password set.":" No private password.");
+};
+$("#btnOut").onclick=()=>location.reload();
+</script>
+<script type="module">
+try{const {LiquidGlass}=await import("https://cdn.jsdelivr.net/npm/@ybouane/liquidglass/dist/index.js");
+for(const el of document.querySelectorAll("[data-liquid]")){try{await LiquidGlass.init({root:el.parentElement,glassElements:[el]})}catch(e){}}
+}catch(e){}
+</script>
+</body>
+</html>
