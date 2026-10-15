@@ -26,7 +26,7 @@ async function createSideId(sideId,password){
 }
 function getLocalId(sideId){ return loadIds().find(x=>x.sideId.toLowerCase()===String(sideId||"").toLowerCase())||null; }
 function verifyLocal(sideId,password){ const r=getLocalId(sideId); return (r&&r._pw===password)?r:null; }
-// C12 payload: JSON text saved with .p12 extension (NOT .txt): {sideId, signingCode, expiresAt, pwHash, requiresPassword}
+// C12 payload: JSON text saved with .c12 extension (NOT .txt): {sideId, signingCode, expiresAt, pwHash, requiresPassword}
 function buildCertFile(rec,privatePassword){
   const payload={kind:"SideGrab-C12",sideId:rec.sideId,signingCode:rec.signingCode,issuedAt:Date.now(),
     expiresAt:rec.expiresAt,requiresPassword:!!(privatePassword&&privatePassword.length),pw:privatePassword||""};

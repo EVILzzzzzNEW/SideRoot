@@ -19,18 +19,18 @@
   <div class="hero">
     <div class="glass glass-pad" data-liquid>
       <h1>Virtual machines<br><span class="grad">on stock iOS.</span></h1>
-      <p class="sub">SideRoot is a static front-door for <b>SideBoot</b> (our own bootstrapper for SideOS virtual machines) and <b>.p12 certificates</b> (personal signing). No jailbreak required on your real iPhone — everything runs as a web-clip + signed VM images.</p>
+      <p class="sub">SideRoot is a static front-door for <b>SideBoot</b> (our own bootstrapper for SideOS virtual machines) and <b>.c12 certificates</b> (personal signing). No jailbreak required on your real iPhone — everything runs as a web-clip + signed VM images.</p>
       <div class="pills"><span class="pill">✦ No jailbreak needed</span><span class="pill">▣ Fullscreen web-clip</span><span class="pill">⬢ 6 SideOS builds</span></div>
       <p class="mut">We use our own bootstrapper called <b>SideBoot</b>.</p>
       <div class="btnrow" id="install">
         <a class="btn primary" href="#" id="btnBoot">＋ Install SideBoot</a>
-        <a class="btn" href="#sideid">＋ Get certificate (.p12)</a>
+        <a class="btn" href="#sideid">＋ Get certificate (.c12)</a>
         <a class="btn ghost" href="#archives">⤓ Install Archives</a>
       </div>
       <div class="hr"></div>
       <ol class="steps">
         <li><span class="n">1</span><span>Tap <b>Install SideBoot</b> → open the downloaded profile in iPhone <b>Settings → Profile Downloaded → Install</b> → a <b>SideBoot</b> bookmark lands on your Home Screen.</span></li>
-        <li><span class="n">2</span><span>Create a <b>SideID</b> below → <b>Download .p12</b> (no profile needed) → import it in SideBoot (<b>+ → Sign setup</b>).</span></li>
+        <li><span class="n">2</span><span>Create a <b>SideID</b> below → <b>Download .c12</b> (no profile needed) → import it in SideBoot (<b>+ → Sign setup</b>).</span></li>
         <li><span class="n">3</span><span>In SideBoot, rapid-tap the <b>S logo</b> → <b>Install environment</b> → pick a <b>.zip</b> from Archives → boot SideOS fullscreen.</span></li>
       </ol>
       <p class="mut" id="installMsg"></p>
@@ -45,7 +45,7 @@
         </div>
         <div class="flows">
           <div class="frow"><b>SideBoot</b> <span class="mut">— welcome → + sign setup → rapid-tap S → install .zip → boot</span></div>
-          <div class="frow"><b>.p12 certificate</b> <span class="mut">— SideID → download → import into SideBoot</span></div>
+          <div class="frow"><b>.c12 certificate</b> <span class="mut">— SideID → download → import into SideBoot</span></div>
           <div class="frow"><b>Archives</b> <span class="mut">— 10.0 · 11.5 · 13.5 · 16.3 · 17.9 · 18.3, newer = more apps</span></div>
         </div>
       </div>
@@ -62,19 +62,19 @@
 
   <div class="sec grid2">
     <div class="glass glass-pad" id="sideid" data-liquid>
-      <h2>SideID + certificate (.p12)</h2>
-      <p class="mut">Create an ID, then download your personal certificate <b>directly as a .p12 file</b> — no profile to install. Saved to MongoDB when the API server is running, otherwise kept on-device (demo fallback).</p>
+      <h2>SideID + certificate (.c12)</h2>
+      <p class="mut">Create an ID, then download your personal certificate <b>directly as a .c12 file</b> — no profile to install. Saved to MongoDB when the API server is running, otherwise kept on-device (demo fallback).</p>
       <label>SideID</label><input id="nid" placeholder="e.g. kor_01" autocomplete="username">
       <label>Password</label><input id="npw" type="password" placeholder="4+ chars" autocomplete="new-password">
-      <label>Private password for the .p12 (optional — SideBoot will ask for it on import)</label><input id="np12pw" type="password" placeholder="leave empty for none">
-      <div class="btnrow"><button class="btn primary" id="btnCreate">Create SideID</button><button class="btn" id="btnP12" disabled>Download .p12</button></div>
+      <label>Private password for the .c12 (optional — SideBoot will ask for it on import)</label><input id="nc12pw" type="password" placeholder="leave empty for none">
+      <div class="btnrow"><button class="btn primary" id="btnCreate">Create SideID</button><button class="btn" id="btnC12" disabled>Download .c12</button></div>
       <p class="mut" id="idMsg"></p>
       <div class="hr"></div>
       <p class="mut">Want the dashboard with 3-hour countdown + re-export? Open the optional <a style="color:#c4b5fd" href="sidegrab/">SideGrab bookmark</a> and sign in. API: <code class="k">POST /api/sideid {sideId,password}</code> (see server.js + MongoDB).</p>
     </div>
     <div class="glass glass-pad" data-liquid>
       <h2>Install files</h2>
-      <p class="mut">SideBoot installs via profile. Certificates are plain .p12 downloads (above) — no profile. SideGrab is an optional dashboard bookmark:</p>
+      <p class="mut">SideBoot installs via profile. Certificates are plain .c12 downloads (above) — no profile. SideGrab is an optional dashboard bookmark:</p>
       <div class="btnrow">
         <a class="btn small" href="SideBoot.mobileconfig" download>SideBoot.mobileconfig</a>
         <a class="btn small" href="sidegrab/">SideGrab dashboard</a>
@@ -119,15 +119,15 @@ let lastRec=null;
 document.getElementById("btnCreate").onclick=async()=>{
   const m=document.getElementById("idMsg");
   try{ const r=await SideStore.createSideId(document.getElementById("nid").value,document.getElementById("npw").value);
-    lastRec=r; document.getElementById("btnP12").disabled=false;
-    m.textContent="SideID “"+r.sideId+"” created. Signing code "+r.signingCode+". Expiry: "+new Date(r.expiresAt).toLocaleString()+". Now tap Download .p12 and import it in SideBoot.";
+    lastRec=r; document.getElementById("btnC12").disabled=false;
+    m.textContent="SideID “"+r.sideId+"” created. Signing code "+r.signingCode+". Expiry: "+new Date(r.expiresAt).toLocaleString()+". Now tap Download .c12 and import it in SideBoot.";
   }catch(e){ m.textContent="Error: "+e.message; }
 };
-document.getElementById("btnP12").onclick=()=>{
+document.getElementById("btnC12").onclick=()=>{
   const m=document.getElementById("idMsg");
   if(!lastRec){ m.textContent="Create a SideID first."; return; }
-  SideStore.download("SideID-"+lastRec.sideId+".p12",SideStore.buildCertFile(lastRec,document.getElementById("np12pw").value),"application/x-pkcs12");
-  m.textContent="Downloaded SideID-"+lastRec.sideId+".p12 ✓ — import it in SideBoot (+ → Sign setup).";
+  SideStore.download("SideID-"+lastRec.sideId+".c12",SideStore.buildCertFile(lastRec,document.getElementById("nc12pw").value),"application/octet-stream");
+  m.textContent="Downloaded SideID-"+lastRec.sideId+".c12 ✓ — import it in SideBoot (+ → Sign setup).";
 };
 </script>
 <script type="module">
