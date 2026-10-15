@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>SideBoot</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="SideBoot">
+<link rel="apple-touch-icon" href="../assets/icon-sideboot.svg">
+<link rel="icon" href="../assets/icon-sideboot.svg">
+<link rel="stylesheet" href="../sideos-engine.css">
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+/* SideBoot is intentionally FLAT — no liquid glass */
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#0a0a0f;color:#eee;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,sans-serif;min-height:100vh}
+button{font-family:inherit}
+#app{max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 6px}
+.logo{display:flex;align-items:center;gap:10px}
+.mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#000,#3b0f6e 55%,#a855f7);display:grid;place-items:center;font-weight:900;font-size:22px;color:#fff}
+.plusbtn{width:42px;height:42px;border-radius:50%;background:#1c1c24;border:1px solid #444;color:#fff;font-size:24px;line-height:1}
+main{padding:8px 14px 120px}
+.card{background:#13131b;border:1px solid #2c2c38;border-radius:14px;padding:12px;margin:10px 0}
+.mut{color:#9a94b8;font-size:13px}
+.cert,.vm{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0e0e15;border:1px solid #2c2c38;border-radius:10px;padding:10px;margin:8px 0}
+.badge{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid #444}
+.badge.ok{color:#4ade80;border-color:#4ade80}.badge.bad{color:#f87171;border-color:#f87171}
+.btn{background:#2a2a35;border:1px solid #555;color:#fff;border-radius:10px;padding:10px 14px;font-size:14px}
+.btn.pri{background:#5b21b6;border-color:#a855f7}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+input{width:100%;background:#000;border:1px solid #444;color:#fff;border-radius:10px;padding:11px;margin:4px 0}
+#welcome{position:fixed;inset:0;background:radial-gradient(600px 400px at 50% 20%,#2a0f4d,#000);z-index:40;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;text-align:center;padding:24px}
+#welcome .big{font-size:110px;font-weight:900;color:#fff;animation:pop 1.2s ease both}
+#welcome h1{margin:0}#welcome p{color:#b9b3d6}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+/* Boot BIOS menu */
+#boot{position:fixed;inset:0;background:#0b1020;color:#cfe3ff;z-index:45;display:none;font-family:ui-monospace,Menlo,Consolas,monospace}
+#boot .inner{max-width:560px;margin:0 auto;padding:18px}
+#boot h2{background:#1e3a8a;color:#fff;padding:8px 12px;margin:0 -18px 12px}
+.bopt{border:1px solid #3b5bdb;padding:12px;margin:8px 0;cursor:pointer}
+.bopt.sel{background:#1e3a8a;color:#fff}
+#volbar{position:fixed;right:10px;bottom:14px;z-index:46;display:flex;gap:8px}
+#volbar button{width:56px;height:56px;border-radius:50%;background:#222;border:2px solid #666;color:#fff;font-weight:800}
+#volbar .selbtn{width:auto;border-radius:14px;padding:0 14px;border-color:#a855f7}
+#log{background:#000;border:1px solid #444;border-radius:10px;padding:10px;font-size:12px;white-space:pre-wrap;max-height:300px;overflow:auto}
+dialog{background:#15151d;color:#eee;border:1px solid #444;border-radius:14px;max-width:440px;width:92vw}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo"><div class="mark">S</div><div><b>SideBoot</b><br><span class="mut">stock-iOS VM bootstrapper</span></div></div>
+    <button class="plusbtn" id="plus" title="Sign setup">+</button>
+  </header>
+  <main>
+    <div class="card"><b>Certificates</b> <span class="mut">(imported .p12 / .c12 — kept after reopen)</span><div id="certs"></div></div>
+    <div class="card"><b>Virtual machines</b> <span class="mut">(separate list — tap one to select + restart)</span><div id="vms"></div></div>
+    <div class="card mut">To open <b>Boot</b>: spam <b>VOL−</b> 5× fast.<br>iOS Safari can't read hardware volume keys, so this demo also accepts: tapping <b>VOL−</b> below 5× fast, or pressing the <b>−</b> key 5×.<br>Inside Boot: <b>− / +</b> to move, <b>press both together</b> (or SELECT) to choose.<br>“See boot options” was removed — Boot now shows: Install environment · Boot to selected · Exit.</div>
+    <div class="card"><b>Boot log</b><pre id="log">ready.</pre></div>
+  </main>
+</div>
+
+<div id="welcome">
+  <div class="big">S</div>
+  <h1>Welcome to SideBoot</h1>
+  <p>This app is made for developing virtual machines on stock iOS.</p>
+  <p class="mut">web-clip · fullscreen · certs + Boot menu</p>
+  <button class="btn pri" id="cont" style="font-size:17px;padding:13px 34px">Continue</button>
+</div>
+
+<div id="boot"><div class="inner">
+  <h2>Boot — SideBoot Setup</h2>
+  <div class="mut" style="color:#8ab4ff">− / + or VOL−/VOL+ to move · press + and − together (or SELECT) to choose</div>
+  <div id="bopts"></div>
+  <pre id="bootlog" style="background:#000;border:1px solid #3b5bdb;padding:10px;white-space:pre-wrap;max-height:280px;overflow:auto"></pre>
+  <div class="btnrow"><button class="btn" id="bootExit">Exit (Esc)</button></div>
+</div></div>
+
+<div id="volbar"><button id="vminus">−<br><small>VOL</small></button><button id="vplus">+<br><small>VOL</small></button><button class="selbtn" id="vsel">SELECT<br><small>(+ & −)</small></button></div>
+
+<dialog id="dlg"><form method="dialog">
+  <h3 style="margin:0">Sign setup</h3>
+  <p class="mut">Choose a <b>.p12 / .c12</b> certificate file (exported from SideGrab), enter its private password (if it has one), tap Register.</p>
+  <input type="file" id="f" accept=".p12,.pfx,.c12,.mobileprovision,application/octet-stream">
+  <input type="password" id="pw" placeholder="password from the certificate (optional)">
+  <div class="btnrow"><button class="btn pri" id="reg" value="default">Register</button><button class="btn" value="cancel">Close</button></div>
+  <p class="mut" id="dmsg"></p>
+</form></dialog>
+
+<input type="file" id="zipPick" accept=".zip" style="display:none">
+<script src="../sidestore.js"></script>
+<script src="../sideos-engine.js"></script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const LC="sideboot_certs_v1", LV="sideboot_vms_v1";
+const load=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||f)}catch(e){return JSON.parse(f)}};
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let certs=load(LC,"[]"), vms=load(LV,"[]");
+let pendingBoot=sessionStorage.getItem("sideboot_pending")||null;
+const log=(t)=>{const e=$("#log");e.textContent+=(e.textContent==="ready."?"":"\n")+t;e.scrollTop=1e6};
+function renderLists(){
+  $("#certs").innerHTML=certs.length?certs.map((c,i)=>{
+    const p=SideStore.parseCertText(c.text);
+    const ok=p.valid&&(!c.locked||c.unlocked);
+    return `<div class="cert"><span><b>${esc(c.name)}</b><br><span class="mut">code ${esc(p.code||"?")} · ${p.expiresAt?("exp "+new Date(p.expiresAt).toLocaleString()):"no expiry"}${c.locked?" · 🔒":""}</span></span><span class="badge ${ok?"ok":"bad"}">${ok?"VALID":"EXPIRED / LOCKED"}</span></div>`}).join(""):'<p class="mut">No certificates. Tap + top-right.</p>';
+  $("#vms").innerHTML=vms.length?vms.map(v=>`<div class="vm" data-id="${v.id}"><span><b>${esc(v.name)}</b> <span class="mut">SideOS ${esc(v.version)}</span><br><span class="mut">${esc(v.id.slice(0,6))} · ${(Object.keys(v.fs||{}).length)} files${pendingBoot===v.id?" · SELECTED":""}</span></span><span class="badge">BOOT</span></div>`).join(""):'<p class="mut">No VMs. Open Boot → Install environment → pick a .zip.</p>';
+  document.querySelectorAll(".vm").forEach(el=>el.onclick=()=>{
+    if(confirm("Select “"+el.querySelector("b").textContent+"” and restart SideBoot? After restart, spam VOL− to open Boot → Boot to selected.")){
+      sessionStorage.setItem("sideboot_pending",el.dataset.id); location.reload(); }
+  });
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+/* welcome */
+if(sessionStorage.getItem("sb_welcomed")) $("#welcome").style.display="none";
+$("#cont").onclick=()=>{sessionStorage.setItem("sb_welcomed","1");$("#welcome").style.display="none"};
+/* sign setup */
+$("#plus").onclick=()=>{$("#dmsg").textContent="";$("#dlg").showModal()};
+$("#reg").onclick=e=>{
+  e.preventDefault();
+  const f=$("#f").files[0]; if(!f){$("#dmsg").textContent="Choose a .p12/.c12 file first.";return}
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const text=String(rd.result||"");
+    const p=SideStore.parseCertText(text);
+    if(!p.code){$("#dmsg").textContent="No signing code (2 letters + 2 numbers) found — not a SideGrab certificate.";return}
+    if(p.needsPassword && p.pw!==$("#pw").value){$("#dmsg").textContent="Wrong private password for this certificate.";return}
+    certs.push({name:f.name,text,locked:p.needsPassword,unlocked:!p.needsPassword||p.pw===$("#pw").value,at:Date.now()});
+    save(LC,certs); renderLists();
+    $("#dmsg").textContent=p.valid?("Registered ✓ — VALID ("+p.code+")"):("Registered — EXPIRED ("+p.code+"). Boot will show certificate request_0.");
+  };
+  rd.readAsText(f);
+};
+/* ---- volume-emulation + Boot ---- */
+let minusHits=[], plusDown=false, minusDown=false, lastPlus=0, lastMinus=0, bootOpen=false, sel=0;
+function spamMinus(){
+  const t=Date.now(); minusHits=minusHits.filter(x=>t-x<2000); minusHits.push(t);
+  if(minusHits.length>=5 && !bootOpen){ openBoot(); minusHits=[]; return; }
+  if(bootOpen){ moveSel(1); }
+}
+function spamPlus(){ if(bootOpen) moveSel(-1); }
+function bothTogether(){ if(bootOpen) chooseSel(); }
+$("#vminus").onclick=()=>{const t=Date.now();minusDown=true;if(t-lastPlus<300){bothTogether()}else spamMinus();lastMinus=t;setTimeout(()=>minusDown=false,350)};
+$("#vplus").onclick=()=>{const t=Date.now();plusDown=true;if(t-lastMinus<300){bothTogether()}else spamPlus();lastPlus=t;setTimeout(()=>plusDown=false,350)};
+$("#vsel").onclick=()=>bothTogether();
+window.addEventListener("keydown",e=>{
+  if(e.key==="-"){spamMinus();if(plusDown)bothTogether();minusDown=true;setTimeout(()=>minusDown=false,350)}
+  if(e.key==="+"||e.key==="="){spamPlus();if(minusDown)bothTogether();plusDown=true;setTimeout(()=>plusDown=false,350)}
+  if(e.key==="Enter"&&bootOpen)chooseSel();
+  if(e.key==="Escape"&&bootOpen)closeBoot();
+});
+function validCert(){ for(const c of certs){const p=SideStore.parseCertText(c.text); if(p.valid&&(!c.locked||c.unlocked)) return {c,p}} return null; }
+function bootOpts(){
+  const o=[{id:"install",t:"Install environment"}];
+  const pv=vms.find(v=>v.id===pendingBoot)||vms[0];
+  if(pv) o.push({id:"selected",t:"Boot to selected: "+pv.name+" ("+pv.version+")"});
+  o.push({id:"exit",t:"Exit"});
+  return o;
+}
+function openBoot(){ bootOpen=true; sel=0; $("#boot").style.display="block"; drawBoot(); blog("Boot v1.0 — certs: "+certs.length+", vms: "+vms.length+(validCert()?(" · signing with "+validCert().p.code):" · NO VALID CERT")); }
+function closeBoot(){ bootOpen=false; $("#boot").style.display="none"; }
+$("#bootExit").onclick=closeBoot;
+function drawBoot(){
+  const o=bootOpts(); sel=Math.max(0,Math.min(sel,o.length-1));
+  $("#bopts").innerHTML=o.map((x,i)=>`<div class="bopt ${i===sel?"sel":""}" data-i="${i}">${i===sel?"▶ ":"&nbsp;&nbsp;"}${esc(x.t)}</div>`).join("");
+  document.querySelectorAll(".bopt").forEach(el=>el.onclick=()=>{sel=+el.dataset.i;chooseSel()});
+}
+function moveSel(d){ sel+=d; drawBoot(); }
+function blog(t){const e=$("#bootlog");e.textContent+=(e.textContent?"\n":"")+t;e.scrollTop=1e6}
+function chooseSel(){
+  const o=bootOpts()[sel];
+  if(o.id==="exit"){ closeBoot(); log("Boot → exit to SideBoot home."); return; }
+  if(o.id==="selected"){ const vm=vms.find(v=>v.id===pendingBoot)||vms[0]; if(vm) startVM(vm); return; }
+  if(o.id==="install"){ installFlow(); }
+}
+/* install environment */
+$("#zipPick").onchange=async e=>{
+  const f=e.target.files[0]; e.target.value=""; if(!f) return;
+  const vc=validCert();
+  if(!vc){ ["extracting…","pulling files…","certificate request_0","BOOT LOCKED — certificate expired/missing. Import a valid .p12 in + menu."].forEach((l,i)=>setTimeout(()=>blog(l),i*500)); log("install failed: certificate request_0"); return; }
+  blog("Selected "+f.name+" ("+Math.round(f.size/1024)+" KB)");
+  let ver=null, names=[];
+  try{
+    const zip=await JSZip.loadAsync(f); names=Object.keys(zip.files);
+    const mf=names.find(n=>/manifest\.json$/i.test(n));
+    if(mf){ const j=JSON.parse(await zip.file(mf).async("string")); ver=j.version||j.sideOS||null; }
+    if(!ver){ const m=f.name.match(/(10\.0|11\.5|13\.5|16\.3|17\.9|18\.3)/); ver=m&&m[1]; }
+  }catch(err){ blog("zip parse note: "+err.message+" (continuing with filename detect)"); const m=f.name.match(/(10\.0|11\.5|13\.5|16\.3|17\.9|18\.3)/); ver=m&&m[1]; }
+  ver=ver||"17.9";
+  const steps=[`extracting ${names.length||"~140"} files…`,"pulling up files… rootfs, kernel, KorBrowser, SideBuild…",`signing with ${vc.p.code} (${vc.c.name})…`,"verifying signature… OK","running preboot… OK","prepare complete — press + and − together to Boot."];
+  steps.forEach((s,i)=>setTimeout(()=>{blog(s);log(s)},600*(i+1)));
+  setTimeout(()=>{
+    const vm={id:"vm"+Date.now().toString(36),name:"SideOS "+ver,version:ver,fs:{"/.manifest":f.name},iconPos:{},tweaks:{},installedApps:[],createdAt:Date.now()};
+    vms.push(vm); save(LV,vms); renderLists();
+    pendingBoot=vm.id; sessionStorage.setItem("sideboot_pending",vm.id);
+    blog("VM saved. Press SELECT (+ & −) now to boot it fullscreen.");
+    const once=()=>{ startVM(vm); $("#vsel").removeEventListener("click",once); };
+    $("#vsel").addEventListener("click",once);
+  },600*steps.length+400);
+};
+function installFlow(){ blog("Choose a .zip with an OS (real iOS file picker)…"); $("#zipPick").click(); }
+/* boot VM fullscreen */
+function startVM(vm){
+  closeBoot();
+  const m=document.createElement("div"); document.body.appendChild(m);
+  log("booting "+vm.name+"…");
+  SideOS.boot(m,vm,{cert:(validCert()||{}).p&&validCert().p.code,save:()=>{save(LV,vms);},onExit:()=>{m.remove();renderLists();log("exited to SideBoot home.")}});
+}
+renderLists();
+log("SideBoot ready. Certs persist in this bookmark (localStorage).");
+</script>
+</body>
+</html>
